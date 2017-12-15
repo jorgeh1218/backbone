@@ -73,5 +73,58 @@
   <script src="bower_components/underscore/underscore.js"></script>
   <script src="bower_components/backbone/backbone.js"></script>
   <script src="js/app.js"></script>
+  <script>
+	function purchase(item) { console.log( 'purchasing ' + item); }
+	function celebrate() { console.log( this.name + ' says birthday parties are awesome!' ); }
+	var EventTracker = function(name)
+	{
+		this.name = name;
+		this._events = {};
+		this._notify = {};
+	}
+	
+	EventTracker.prototype.on = function (event, callback)
+	{
+		if(this._events[event] === undefined)
+		{
+			this._events[event] = [];
+		}
+		this._events[event].push(callback);
+	}
+	
+	EventTracker.prototype.notify = function (anObject, event)
+	{
+		if(this._notify[event] === undefined)
+		{
+			this._notify[event] = [];
+		}
+		this._notify[event].push(anObject);
+	}
+	EventTracker.prototype.trigger = function(event, data)
+	{
+		var listOfCallBacks = this._events[event] || 0;
+		var objectsToNotify = this._notify[event] || 0;
+		var i;
+		
+		for(i = 0; i < listOfCallBacks.length; i++)
+		{
+			listOfCallBacks[i].call(this, data);
+		}
+		
+		for(i = 0; i < objectsToNotify.length; i++)
+		{
+			objectsToNotify[i].trigger(event, data);
+		}
+	}
+	var nephew = new EventTracker('nephewParty');
+	var richard = new EventTracker('Richard');
+	
+	nephew.on('mainEvent', purchase);
+	richard.on('mainEvent', celebrate);
+	
+	nephew.notify(richard, 'mainEvent');
+	nephew.trigger('mainEvent', 'ice cream');
+	
+  </script>
 </body>
 </html>
